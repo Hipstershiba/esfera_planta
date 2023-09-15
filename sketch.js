@@ -1,12 +1,12 @@
 let periodo_desejado = 1;
 function setup() {
   screen_size = min(windowWidth, windowHeight);
-  createCanvas(screen_size, screen_size);
+  createCanvas(screen_size, screen_size, P2D);
   fatia = new Oscilador(width/2, height/2);
 }
 
 function draw() {
-  background(5, 25, 10, 100);
+  background(5, 25, 10, 50);
   fatia.periodo = lerp(fatia.periodo, periodo_desejado, 0.05);
   // fatia.periodo = periodo_desejado;
   fatia.show();
@@ -19,10 +19,10 @@ function draw() {
 function controle_de_frequencia() {
   if (keyIsPressed) {
     if(isNaN(key) == false) {
-      periodo_desejado = lerp(2, 300, (key - 1) / 8);
+      fatia.atualiza_tempo_desejado(lerp(1, 4, (key - 1) / 8));
     }
   } else {
-    periodo_desejado = 1;
+    fatia.atualiza_tempo_desejado(0.5);
   }
 }
 
@@ -33,7 +33,8 @@ class Oscilador {
       this.y = _y;
       this.amplitud = width * 0.8;
       this.periodo = 2;
-      this.velocidad = 0.05;
+      this.tempo = 0;
+      this.tempo_desejado = 1;
   }
 
   show() {
@@ -46,19 +47,24 @@ class Oscilador {
   }
 
   calcula_raio_horizontal() {
-    return sin(this.calcula_tempo(frameCount)) * this.amplitud;
+    return sin(this.calcula_tempo(this.tempo)) * this.amplitud;
   }
 
   calcula_raio_vertical() {
-    return sin(this.calcula_tempo(frameCount)) * (this.amplitud / 8);
+    return sin(this.calcula_tempo(this.tempo)) * (this.amplitud / 8);
   }
 
   calcula_deslocamento_vertical() {
-    return (cos(this.calcula_tempo(frameCount)) * (this.amplitud * 0.5)) + (height / 2);
+    return (cos(this.calcula_tempo(this.tempo)) * (this.amplitud * 0.5)) + (height / 2);
   }
 
   calcula_tempo(_tempo) {
+    this.tempo += this.tempo_desejado;
     return radians(_tempo % 360);
+  }
+
+  atualiza_tempo_desejado(_tempo) {
+    this.tempo_desejado = _tempo;
   }
 }
 
